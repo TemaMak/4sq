@@ -4,9 +4,10 @@ class Plugin4sq_ModuleOauth extends Module {
 
 	protected $sOAuthId;
 	protected $aLoadedModules = array();
+	protected $oMapper;
 	
 	public function Init() {
-	
+		$this->oMapper=Engine::GetMapper(__CLASS__);
 	}
 
 	public function getOAuthByIds($sId){
@@ -20,12 +21,12 @@ class Plugin4sq_ModuleOauth extends Module {
 		return $url;
 	}
 	
-	public function InitProvider($sId){
-		$this->aLoadedModules[] = $sId;
-	}
-	
-	public function GetLoadedProvider(){
-		return $this->aLoadedModules;
+	public function saveTokenInStorage($sOAuthId,$sToken){
+		$this->oMapper->saveToken(
+				$this->User_GetUserCurrent(),
+				$sOAuthId,
+				$sToken
+		);
 	}
 	
 	public function getAuthLink(){

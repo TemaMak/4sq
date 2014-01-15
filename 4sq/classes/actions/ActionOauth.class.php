@@ -35,7 +35,12 @@ class Plugin4sq_ActionOauth extends ActionPlugin {
 	}
 
 	protected function EventSaveToken(){
-	
+		$sOAuthID = $this->getOAuthId();
+		$oOAuth = $this->Plugin4sq_Oauth_getOAuthByIds($sOAuthID);
+		$oOAuth->saveToken();
+		
+		$sUrl = Router::GetPath('oauth').'auth';
+		Router::Location($sUrl);
 	}	
 	
 	protected function getOAuthId(){
