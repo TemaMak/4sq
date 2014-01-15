@@ -169,7 +169,7 @@ class EpiFoursquareJson implements ArrayAccess, Countable, IteratorAggregate
   }
 
   // Implementation of Countable::count() to support count($this)
-  public function count ()
+  public function count()
   {
     return count($this->response);
   }
@@ -234,6 +234,11 @@ class EpiFoursquareJson implements ArrayAccess, Countable, IteratorAggregate
     $value = self::__get($name);
     return !empty($name);
   }
+  
+  public function getResponse(){
+  	return $this->__resp->data;
+  }
+  
 }
 
 class EpiFoursquareException extends Exception 

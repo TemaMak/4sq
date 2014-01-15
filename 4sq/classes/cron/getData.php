@@ -11,18 +11,16 @@ require_once($sDirRoot."/../../engine/classes/Cron.class.php");
 require_once("EpiCurl.php");
 require_once("EpiOAuth.php");
 require_once("EpiFoursquare.php");
-
-
-print "hello \n";
+require_once("4sqAPI.class.php");
 
 $token = "ISV4V30R2SG1N5LJIJXRPZ44OYAKF3WFTRHW4Q03HN3NJOPG";
 
-$o4sq = new EpiFoursquare(
+$o4sq = new foursquareAPI(
 	"KK1XWIRIO2EDOFU0D2FAVFC3NHHNM4DUWL55OZSPWAXXEEB1",
 	"HXNSBB5IFCEDKLQU4KCX0NQ55IIDSPHVHXDAX0AFU1KS0D3S",
 	$token
 );
 
-$data = $o4sq->get("/users/75279141/lists?oauth_token=ISV4V30R2SG1N5LJIJXRPZ44OYAKF3WFTRHW4Q03HN3NJOPG");
-var_dump($data);
+$o4sq->getCheckins();
+
 ?>

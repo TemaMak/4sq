@@ -1,59 +1,33 @@
 <?php 
 
-define('CLIENT_ID', 'KK1XWIRIO2EDOFU0D2FAVFC3NHHNM4DUWL55OZSPWAXXEEB1');
-define('CLIENT_SECRET', 'HXNSBB5IFCEDKLQU4KCX0NQ55IIDSPHVHXDAX0AFU1KS0D3S');
+class foursquareAPI{
 
-class 4sqAPI{
+	protected $api;
+	protected $token;
 	
-	protected $clientId;
-	protected $password;
-	
-	static public function login($clientId,$password){
-		$url = 'https://foursquare.com/oauth2/authenticate';
-		$url .= '?client_id='.CLIENT_ID;
-		$url .= '&response_type=code';
-		$url .= '&redirect_uri=http://www.32spokes.ru/plugins/4sq/classes/cron/getData.php'; // change to your 4sq callback
-		
-		// redirect
-		curl( 'Location: '.$url ) ;		
+	public function __construct($clientId,$secret,$token){
+		$this->api = new EpiFoursquare($clientId,$secret,$token);
+		$this->token = $token;
 	}
 	
-	public function callback(){
-		//require_once('secrets.php'); // defines CLIENT_ID & CLIENT_SECRET
+	public function getCheckins(){
+		$data = $this->api->get("/users/self/checkins?oauth_token=".$this->token);
+		$resp = json_decode($data->getResponse());
+		var_dump($resp->response->checkins->items[15]);
 		
-		// get $code from QUERY_STRING
-		parse_str($_SERVER['QUERY_STRING'], $query);
-		$code = $query['code'];
+		$oCheckin = $resp->response->checkins->items[15];
 		
-		// build url
-		$url = 'https://foursquare.com/oauth2/access_token';
-		$url .= '?client_id='.CLIENT_ID;
-		$url .= '&client_secret='.CLIENT_SECRET;
-		$url .= '&grant_type=authorization_code';
-		$url .= '&redirect_uri=http://localhost/scripts/4sq_Callback.php'; //change to your 4sq callback
-		$url .= '&code='.$code;
+		$sType = 'common'; //TODO get type by checkin comment
 		
-		// call to https://foursquare.com/oauth2/access_token with $code
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_URL, $url);
-		$result = curl_exec($ch);
-		curl_close($ch);
+		$oShortMessage = Engine::GetEntity('Plugin4sq_Shortmessages');
+		$oShortMessage->setSource('4sq');
+		$oShortMessage->setMessageId($oCheckin->id);
+		//$oShortMessage->setUserId(); //TODO get userId from internalScript OR by token
+		$oShortMessage->setType($sType);
 		
-		// $result value is json {access_token: ACCESS_TOKEN}
-		$values = json_decode($result, true);
-		$token = $values['access_token'];
-		
-		// set access_token cookie (if you wish)
-		$expire = time()+2592000; // 30 days from now
-		setcookie("foursquare_token", $token, $expire, '/');
-		
-		// crosswindow scripting to pass back $token
-		echo('<script type="text/javascript">');
-		echo('opener.set4sqKey("'.$token.'");');
-		echo('self.close();'); // close self
-		echo('</script>');
+		var_dump($oShortMessage);
 	}
+	
 }
 
 ?>
